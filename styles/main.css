@@ -20,21 +20,28 @@ body.light-mode {
     --body-bg: #ffffff;
 }
 
+/* Prevent scroll during boot */
+body.booting {
+    overflow: hidden !important;
+}
+
 html {
     scroll-behavior: auto; /* Instant feel */
 }
 
-/* ===== GLOBAL TRANSITION (LIGHTNING FAST) ===== */
+/* ===== GLOBAL TRANSITION (LIGHTING FAST) ===== */
 body {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
 .sections, .project-card, .node-card {
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease;
+    transform: translateZ(0); /* Hardware Acceleration on specific layers */
+    backface-visibility: hidden;
 }
 
 /* Exemptions to prevent breaking specific animations */
-.cursor, .intro-letter, .boot-line, .cline, canvas, .global-bg {
+.cursor, .boot-line, .cline, canvas, .global-bg {
     transition: none !important;
 }
 
@@ -178,21 +185,21 @@ body.light-mode .project-card p {
     opacity: 1;
 }
 
-/* ===== CRT SCANLINES OVERLAY ===== */
+/* ===== CRT SCANLINES OVERLAY (ULTRA LIGHT) ===== */
 .scanlines {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 2000000; /* Absolute top */
+    z-index: 2000000;
     pointer-events: none;
     background: linear-gradient(
         rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.25) 50%
-    ), url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    background-size: 100% 3px, 150px 150px;
-    opacity: 0.03; /* Extremely light - safe for performance */
+        rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 4px;
+    opacity: 0.03;
 }
 
 .scanlines::before {
@@ -212,51 +219,45 @@ body.light-mode .project-card p {
     animation: scanlineScroll 10s linear infinite;
 }
 
+/* Scanline scroll simplified */
 @keyframes scanlineScroll {
-    0% { background-position: 0% -100%; }
-    100% { background-position: 0% 100%; }
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
 }
 
-/* ===== CURSOR ===== */
+/* ===== CURSOR (INVISIBLE OS MOD - FULL SUPPRESSION) ===== */
+* {
+    cursor: none !important; /* Kill the hand pointer everywhere */
+}
+
 .cursor {
     position: fixed;
-    height: 50px;
-    width: 50px;
-    border: 4px solid var(--theme-color);
+    height: 18px; /* Slightly smaller for precision */
+    width: 18px;
+    border: 2px solid var(--theme-color);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    transition: width .2s, height .2s;
-    box-shadow: 10px 10px 50px var(--theme-color);
-    z-index: 99999;
+    transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1), 
+                height 0.4s cubic-bezier(0.19, 1, 0.22, 1), 
+                background 0.4s ease, 
+                border-radius 0.4s ease;
+    z-index: 100000000; /* Ultra top */
 }
 
-/* Global Technical Cursor - Crosshair everywhere */
-:root {
-    --tech-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2329b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='1' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='23' y2='12'%3E%3C/line%3E%3C/svg%3E") 12 12, crosshair;
-}
-
-* {
-    cursor: var(--tech-cursor) !important;
-}
-
-input,
-textarea,
-[contenteditable="true"],
-.cline,
-.boot-line {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='20' viewBox='0 0 12 20'%3E%3Crect width='8' height='16' x='2' y='2' fill='%2329b6d4' opacity='0.7'/%3E%3C/svg%3E") 6 10, text !important;
+/* Hover state for Chic Scaling */
+.cursor-hover {
+    width: 55px;
+    height: 55px;
+    background: rgba(41, 182, 212, 0.15);
+    border-color: var(--theme-color);
+    border-radius: 50%; /* Keeps it round, or you can make it square if you prefer */
 }
 
 /* Hide custom cursor on touch devices */
 @media (hover: none) and (pointer: coarse) {
-    .cursor {
-        display: none !important;
-    }
-
-    body {
-        cursor: auto !important;
-    }
+    .cursor { display: none !important; }
+    html, body { cursor: auto !important; }
 }
 
 /* ===== DOWNLOAD CV BUTTON ===== */
@@ -295,23 +296,97 @@ body.light-mode .cv-download-btn {
     position: fixed;
     bottom: 50px;
     left: 0;
-    z-index: 10000;
+    z-index: 1000000; /* Extremely high */
     box-shadow: 0px 0px 21px var(--theme-color);
     border-radius: 0px 50px 50px 0px;
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .theme-mode i {
     font-size: 30px;
     color: white;
     transition: 0.5s;
+    pointer-events: none;
 }
 
 #moon {
     display: none;
+}
+
+/* ===== BIOS BOOT STYLES ===== */
+#bootOverlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 10000000 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #eee;
+    padding: 20px;
+}
+
+.boot-window {
+    width: 85vw !important; /* Balanced Large Width */
+    height: 75vh !important; /* Balanced Large Height */
+    max-width: 1300px !important;
+    background: rgba(4, 10, 15, 0.98) !important;
+    overflow-y: hidden;
+    padding: 40px !important;
+    border: 2px solid #29b6d4 !important; /* Elegant Blue Border */
+    box-shadow: 0 0 50px rgba(41, 182, 212, 0.4) !important; /* Balanced Neon Glow */
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.boot-line {
+    font-size: 13px !important;
+    line-height: 1.6;
+    margin-bottom: 5px;
+    letter-spacing: 0.6px;
+    color: #c8ebff;
+}
+
+.boot-ok {
+    color: #29b6d4;
+    font-weight: bold;
+}
+
+.skip-intro {
+    margin-top: 35px;
+    background: #111;
+    border: 2px solid #29b6d4;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 50px;
+    cursor: none !important;
+    font-weight: bolder;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    /* Combined Shine + Scale Animation */
+    animation: skipSync 1s infinite alternate ease-in-out;
+    transition: all 0.3s ease;
+}
+
+@keyframes skipSync {
+    0% { 
+        box-shadow: 0 0 5px rgba(41, 182, 212, 0.2); 
+        text-shadow: 0 0 2px rgba(41, 182, 212, 0.4);
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% { 
+        box-shadow: 0 0 40px rgba(41, 182, 212, 1), inset 0 0 10px rgba(41, 182, 212, 0.5); 
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 25px rgba(41, 182, 212, 1);
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 /* ===== NAVBAR ===== */
@@ -864,10 +939,11 @@ a {
 }
 
 .effect3:hover {
-    margin: 0 5px;
-    transform: scale(1.3);
+    margin: 0 2px; /* Subtle expansion */
+    transform: scale(1.2);
     font-weight: bolder;
     color: var(--theme-color);
+    transition: all 0.5s ease;
 }
 
 /* ===== PROJECTS (GitHub Pins) ===== */
@@ -1501,4 +1577,23 @@ body.light-mode #homelab h2 {
     border-radius: 50%;
     box-shadow: 0 0 8px #2ecc71;
     animation: pulse-green 1.5s infinite;
+}
+
+/* ===== LIVING TEXTAREA (AUTO-EXPAND & ALIVE) ===== */
+textarea#message {
+    resize: none !important;
+    overflow: hidden !important;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    min-height: 120px;
+    border: 1px solid rgba(41, 182, 212, 0.2);
+}
+
+.alive-pulse {
+    animation: alivePulse 1.2s ease-out;
+}
+
+@keyframes alivePulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 rgba(41, 182, 212, 0); }
+    50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(41, 182, 212, 0.6); border-color: #29b6d4; }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(41, 182, 212, 0); }
 }
