@@ -42,13 +42,36 @@ textElements.forEach((el) => {
     el.dataset.magnified = "true";
 });
 
-// ===== Custom cursor =====
+// ===== Custom cursor (Smooth & Responsive) =====
 const cursorNode = document.querySelector(".cursor");
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+
 document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+function animateCursor() {
+    // Smoother following effect
+    const deltaX = mouseX - cursorX;
+    const deltaY = mouseY - cursorY;
+    cursorX += deltaX * 0.2; // Adjust speed here
+    cursorY += deltaY * 0.2;
+
     if (cursorNode) {
-        cursorNode.style.left = e.clientX + "px";
-        cursorNode.style.top = e.clientY + "px";
+        cursorNode.style.left = cursorX + "px";
+        cursorNode.style.top = cursorY + "px";
     }
+    requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// Chic Hover Expansion logic
+const clickables = document.querySelectorAll('a, button, .btn, .clickable, .project-card, .mode-toggle, .theme-mode, input, textarea');
+clickables.forEach(el => {
+    el.addEventListener('mouseenter', () => cursorNode?.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => cursorNode?.classList.remove('cursor-hover'));
 });
 
 // ===== Scroll to top button =====
@@ -91,32 +114,64 @@ if (app) {
 // ===== AOS =====
 AOS.init();
 
-// ===== Contact form with Terminal Feedback =====
+// ===== Contact form with Automated EmailJS Feedback =====
 window.sendMail = function(ev) {
     ev.preventDefault();
     const btn = ev.target.querySelector('button');
     const originalText = btn.innerHTML;
     
-    btn.innerHTML = '<i class="fas fa-terminal"></i> [ENCRYPTING...]';
-    btn.style.opacity = '0.7';
-    
-    setTimeout(() => {
-        btn.innerHTML = '<i class="fas fa-check"></i> [SUCCESS: REDIRECTING]';
-        btn.classList.add('btn-success');
-        
-        setTimeout(() => {
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
-            window.open(`mailto:mohamedelsayid@outlook.com?subject=${subject}&body=${'I am ' + name + ' (' + email + '). ' + message}`);
+    // UI Feedback: Clean terminal labels (No Brackets)
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+    btn.style.boxShadow = "0 0 25px rgba(41, 182, 212, 0.7)";
+    btn.style.minWidth = "180px";
+    btn.disabled = true;
+
+    // Collect parameters
+    const params = {
+        from_name: document.getElementById('name').value,
+        reply_to: document.getElementById('email').value,
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value
+    };
+
+    // Automated Send via EmailJS with your verified IDs
+    emailjs.send("service_0vwn4kr", "template_353aai5", params)
+        .then(function(res) {
+            btn.innerHTML = '<i class="fas fa-check-double"></i> SUCCESS';
+            btn.style.background = "#00ff00"; // Strong Vibrant Neon Green
+            btn.style.color = "#000"; // Black text for maximum contrast on green
+            btn.style.borderColor = "#00ff00";
+            btn.style.boxShadow = "0 0 50px rgba(0, 255, 0, 0.8)";
             
-            // Reset
-            btn.innerHTML = originalText;
-            btn.classList.remove('btn-success');
-            btn.style.opacity = '1';
-        }, 1000);
-    }, 1500);
+            ev.target.reset();
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = "";
+                btn.style.color = "";
+                btn.style.borderColor = "";
+                btn.style.boxShadow = "";
+                btn.style.minWidth = "";
+                btn.disabled = false;
+            }, 4000);
+        })
+        .catch(function(err) {
+            btn.innerHTML = '<i class="fas fa-times"></i> FAILED';
+            btn.style.background = "#ff0000"; // Strong Vibrant Red
+            btn.style.color = "#fff";
+            btn.style.borderColor = "#ff0000";
+            btn.style.boxShadow = "0 0 40px rgba(255, 0, 0, 0.6)";
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = "";
+                btn.style.color = "";
+                btn.style.borderColor = "";
+                btn.style.boxShadow = "";
+                btn.style.minWidth = "";
+                btn.disabled = false;
+            }, 4000);
+        });
 };
 
 // ===== Theme toggle & Auto Detection =====
@@ -143,25 +198,38 @@ window.changeTheme = function() {
     body.classList.toggle("light-mode");
 };
 
+// Optimize GSAP defaults for better performance
+gsap.config({ 
+    force3D: true, // Use hardware acceleration
+    nullTargetWarn: false 
+});
+
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
     window.changeTheme(); 
 }
 
 // ===== BIOS Boot Effect =====
 const bootOverlay = document.getElementById('bootOverlay');
+if (bootOverlay) document.body.classList.add('booting'); // Lock scroll
+
 const bootContainer = document.getElementById('bootContainer');
 const bootLines = [
     "MSL_OS v2.0.4 RC1 starting...",
-    "[ OK ] CPU initialization completed.",
-    "[ OK ] RAM self-test passed (65536 MB).",
-    "[ OK ] Network stack online: 10Gbps Link detected.",
-    "[ WAIT ] Checking Home Lab resources...",
-    "[ OK ] Laboratory clusters reaching quorum.",
-    "[ OK ] Initializing Secure Gateway...",
-    "[ OK ] Certificates verified (CSCO15040282).",
-    "Starting Portfolio Interface...",
-    "LOGIN: guest@portfolio - No password required.",
-    "SYSTEM READY."
+    "[ OK ] CPU initialization completed: Optimized for hardware acceleration.",
+    "[ OK ] Multi-threaded rendering engine active.",
+    "[ OK ] RAM self-test passed (65536 MB Cache).",
+    "[ OK ] Hardware-to-GPU mapping established (GSAP Core 3.11).",
+    "[ OK ] Network stack online: Gateway 10Gbps Link (IPv6 Enabled).",
+    "[ WAIT ] Scanning Portofolio assets and local media library...",
+    "[ OK ] Assets loaded (Images, SVGs, Fonts).",
+    "[ WAIT ] Checking Home Lab clusters and VPN tunnel...",
+    "[ OK ] Remote laboratory resources reachable (Quorum: High).",
+    "[ OK ] Initializing Secure Portofolio interface & CRT filters.",
+    "[ OK ] Certificates verified (ID: CSCO15040282).",
+    "[ OK ] Digital signature of Mohamed Sayid Lotfy validated.",
+    "LOGIN: guest@portfolio - No password required (Sudo Privileges).",
+    "SYSTEM LOADING: [####################] 100%",
+    "SYSTEM READY: WELCOME TO THE MSL_OS INTERFACE."
 ];
 
 let lineIdx = 0;
@@ -177,13 +245,16 @@ window.printBootLine = function() {
         if(bootContainer) bootContainer.appendChild(line);
         if(bootContainer) bootContainer.scrollTop = bootContainer.scrollHeight;
         lineIdx++;
-        setTimeout(window.printBootLine, 150 + Math.random() * 200);
+        // Slower, more cinematic boot sequence
+        setTimeout(window.printBootLine, 300 + Math.random() * 400);
     } else {
         setTimeout(() => {
             window.skipBootSequence();
         }, 800);
     }
 };
+
+// CLI Toggles (Moved inside IIFE below for performance mapping)
 
 window.skipBootSequence = function() {
     if (bootOverlay && bootOverlay.style.display !== "none") {
@@ -192,6 +263,7 @@ window.skipBootSequence = function() {
             duration: 0.8,
             onComplete: () => {
                 bootOverlay.style.display = "none";
+                document.body.classList.remove('booting'); // Unlock scroll
                 window.animateNameWave();
             }
         });
@@ -258,20 +330,21 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
     function updateBg(colors) {
         if (document.body.classList.contains('light-mode')) return;
-        gsap.to("#dynamic-bg", {
-            backgroundImage: `linear-gradient(-45deg, ${colors[0]}, ${colors[1]}, ${colors[2]}, ${colors[3]})`,
-            duration: 1.5,
-            ease: "power2.out"
+        
+        const currentBg = document.querySelector("#dynamic-bg");
+        if (!currentBg) return;
+
+        // Optimized cross-fade: transform colors into gradient string
+        const newGradient = `linear-gradient(-45deg, ${colors[0]}, ${colors[1]}, ${colors[2]}, ${colors[3]})`;
+        
+        gsap.to(currentBg, {
+            backgroundImage: newGradient,
+            duration: 0.8, // Faster transition
+            ease: "none" // Linear avoid layout recalculations
         });
     }
 
-    gsap.to("#dynamic-bg", {
-        backgroundPosition: "100% 50%",
-        duration: 15,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-    });
+    // Removed backgroundPosition animation for high FPS performance
 }
 
 // ===== Mobile Menu Toggle =====
@@ -375,22 +448,43 @@ document.addEventListener('copy', (e) => {
     function startCliMx() {
         if (cliMxInterval) return;
         cliMxInterval = setInterval(function () {
-            cliCx.fillStyle = 'rgba(4,10,15,0.04)';
+            cliCx.fillStyle = 'rgba(4,10,15,0.06)'; // Slightly more opaque for better fade
             cliCx.fillRect(0, 0, cliMx.width, cliMx.height);
+            cliCx.font = CLI_FS + 'px IBM Plex Mono,monospace';
             for (var i = 0; i < cliDrops.length; i++) {
                 var r = Math.random();
-                cliCx.font = CLI_FS + 'px IBM Plex Mono,monospace';
                 var char = CLI_CHARS[Math.floor(Math.random() * CLI_CHARS.length)];
                 if (r > .97) cliCx.fillStyle = 'rgba(200,235,255,1)';
-                else if (r > .85) cliCx.fillStyle = 'rgba(74,144,184,1)';
-                else cliCx.fillStyle = 'rgba(74,144,184,0.6)';
+                else cliCx.fillStyle = 'rgba(74,144,184,0.7)';
                 cliCx.fillText(char, i * CLI_FS, cliDrops[i] * CLI_FS);
                 if (cliDrops[i] * CLI_FS > cliMx.height && Math.random() > .976) cliDrops[i] = 0;
                 cliDrops[i]++;
             }
-        }, 60);
+        }, 80); // Slightly slower interval for performance
     }
-    function stopCliMx() { clearInterval(cliMxInterval); cliMxInterval = null; }
+    function stopCliMx() { 
+        if(cliMxInterval) {
+            clearInterval(cliMxInterval); 
+            cliMxInterval = null; 
+        }
+    }
+
+    // Expose Toggle functions to global window within this scope
+    window.openCLI = function() {
+        gsap.set("#cli-overlay", { display: "flex", opacity: 0, scale: 1.1 });
+        gsap.to("#cli-overlay", { duration: 0.3, opacity: 1, scale: 1 });
+        startCliMx();
+    };
+
+    window.closeCLI = function() {
+        gsap.to("#cli-overlay", { 
+            duration: 0.3, 
+            opacity: 0, 
+            scale: 1.1, 
+            display: "none",
+            onComplete: stopCliMx
+        });
+    };
 
     var cliBooted = false;
     var cliHistory = [], cliHistIdx = -1;
@@ -569,4 +663,30 @@ document.addEventListener('copy', (e) => {
             stopCliMx();
         }
     };
+
+    // ===== Living Form: Auto-resize & Global Pulse =====
+    const msgArea = document.getElementById('message');
+    const contactSection = document.getElementById('contact');
+    const allInputs = document.querySelectorAll('#contact input, #contact textarea');
+
+    if (msgArea) {
+        msgArea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+
+    if (contactSection && allInputs.length > 0) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    allInputs.forEach(input => {
+                        input.classList.add('alive-pulse');
+                        setTimeout(() => input.classList.remove('alive-pulse'), 1500);
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+        observer.observe(contactSection);
+    }
 })();
