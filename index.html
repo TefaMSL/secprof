@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Mohamed Sayid Lotfy - IT Infrastructure & Security Engineer|">
+
+    <!-- ===== Open Graph / Social Sharing ===== -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mohamed Sayid Lotfy — Network & System Administrator">
+    <meta property="og:description"
+        content="IT Specialist with CCNA/CCNP certifications. Expert in enterprise networking, system administration, and cybersecurity. Open to work.">
+    <meta property="og:image"
+        content="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23141414%22/><text y=%22.9em%22 x=%225%22 font-size=%2280%22 fill=%22%2329b6d4%22 font-family=%22serif%22 font-weight=%22bold%22>M</text></svg>">
+
+    <meta property="og:url" content="https://tefamsl.github.io/Portfolio">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mohamed Sayid Lotfy — Network & System Administrator">
+    <meta name="twitter:description"
+        content="IT Specialist with CCNA/CCNP certifications. Expert in enterprise networking, system administration, and cybersecurity.">
+    <meta name="twitter:image"
+        content="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23141414%22/><text y=%22.9em%22 x=%225%22 font-size=%2280%22 fill=%22%2329b6d4%22 font-family=%22serif%22 font-weight=%22bold%22>M</text></svg>">
+
+
+    <!-- ===== Favicon ===== -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%2329b6d4%22 font-family=%22serif%22 font-weight=%22bold%22>M</text></svg>">
+
+
+    <title>Mohamed Sayid Lotfy</title>
+    <link rel="stylesheet" href="./styles/plain.css">
+    <link rel="stylesheet" href="./styles/intro.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=IBM+Plex+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+
+    <link rel="stylesheet" href="./styles/main.css">
+</head>
+
+<body>
+    <div class="scanlines"></div>
+
+    <!-- System BIOS Boot Overlay -->
+    <div class="intro" id="bootOverlay">
+        <div class="boot-window" id="bootContainer">
+            <!-- Lines will be added by JS -->
+        </div>
+        <div class="mt-3 small" style="opacity:0.3">MSL_NETWORK_OS v2.0.4.RC1 // LOADING...</div>
+        <button class="skip-intro" onclick="skipBootSequence()">Skip Intro [ESC]</button>
+    </div>
+
+    <div class="global-bg" id="dynamic-bg"></div>
+
+    <!-- Fixed Floating Waves Background -->
+    <div class="waves-container">
+        <svg viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+            <defs>
+                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            </defs>
+            <g class="parallax">
+                <use xlink:href="#gentle-wave" x="48" y="0" id="wave1" class="wave" />
+                <use xlink:href="#gentle-wave" x="48" y="3" id="wave2" class="wave" />
+                <use xlink:href="#gentle-wave" x="48" y="5" id="wave3" class="wave" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- Theme Toggle (Replicated from reference site) -->
+    <div class="theme-mode" id="theme-mode" onclick="changeTheme()">
+        <i class="fas fa-sun" id="sun"></i>
+        <i class="fas fa-moon" id="moon"></i>
+    </div>
+
+    <!-- ====== EMBEDDED CLI OVERLAY ====== -->
+    <div id="cli-overlay">
+        <canvas id="cli-mx"></canvas>
+        <!-- Top bar -->
+        <div id="cli-top-bar">
+            <div class="cli-brand">MSL.IT <span>// PORTFOLIO</span></div>
+            <div id="cli-bar-right">
+                <button class="cli-bar-btn" onclick="closeCLI()">⊞ Normal</button>
+                <button class="cli-bar-btn active-btn">▶ CLI</button>
+            </div>
+        </div>
+        <!-- Window chrome -->
+        <div id="cli-header">
+            <div class="cli-dots">
+                <div class="cli-dot cli-dot-r" onclick="closeCLI()" title="Exit CLI"></div>
+                <div class="cli-dot cli-dot-y"></div>
+                <div class="cli-dot cli-dot-g"></div>
+            </div>
+            <div class="cli-title-bar">msl@portfolio:~$ — Terminal Mode</div>
+            <div class="cli-hint-bar">Tab=autocomplete · ↑↓=history · ESC=normal mode</div>
+        </div>
+        <!-- Output -->
+        <div id="cli-body"></div>
+        <!-- Input row -->
+        <div id="cli-input-row">
+            <span class="c-prompt">
+                <span class="c-prompt-user">msl@portfolio</span>:<span style="color:#4a90b8">~</span>$
+            </span>
+            <input id="cli-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
+                placeholder="type 'help' to start...">
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar-custom">
+        <div class="d-flex align-items-center">
+            <a href="#home" class="brand">PORTFOLIO</a>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span class="status-text">Network Status: Online</span>
+            </div>
+        </div>
+        <div class="navbar-links" id="navLinks">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#homelab">Home Lab</a>
+            <a href="#certifications">Certificates</a>
+            <a href="#resume">Resume</a>
+            <a href="#contact">Contact</a>
+            <a href="#" onclick="openCLI();return false;" class="cli-toggle-nav" title="CLI Mode">
+                <i class="fas fa-terminal"></i>
+            </a>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+
+    <!-- ========== HERO ========== -->
+    <section id="home" class="bg d-flex flex-column justify-content-center">
+        <div class="container name_container" data-aos="fade-right" data-aos-duration="1000">
+            <h1>Mohamed Sayid<br>Lotfy</h1>
+            <p role="typewriter">I'm <span id="typeabletext">Medical IT</span></p>
+            <div>
+                <a href="https://www.linkedin.com/in/mohamedelsayid" target="_blank" title="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="mailto:mohamed-sayid@outlook.com" target="_blank" title="Email">
+                    <i class="fas fa-envelope-square"></i>
+                </a>
+                <a href="https://wa.me/201503333155" target="_blank" title="WhatsApp">
+                    <i class="fab fa-whatsapp-square"></i>
+                </a>
+                <a href="tel:+201503333155" title="Phone">
+                    <i class="fas fa-phone-square"></i>
+                </a>
+                <a href="https://tefamsl.github.io/Portfolio/Mohamed%20Sayid%20Lotfy%20CV.pdf" target="_blank"
+                    title="Download CV">
+                    <i class="fab fa-pied-piper-square"></i>
+                </a>
+            </div>
+            <!-- Download CV Button -->
+            <div class="mt-4">
+                <a href="https://tefamsl.github.io/Portfolio/Mohamed%20Sayid%20Lotfy%20CV.pdf" target="_blank"
+                    class="cv-download-btn">
+                    <i class="fas fa-download"></i>&nbsp; Download CV
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== ABOUT ========== -->
+    <section id="about" class="sections">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">About</h2>
+            <p class="info" data-aos-duration="1000" data-aos="fade-up">
+                Detail-oriented IT Specialist and Network Administrator<br>
+                with expertise in managing, securing, and optimizing network infrastructures.<br>
+                Skilled in troubleshooting, system administration, and ensuring seamless enterprise connectivity.
+            </p>
+            <div class="row mt-5">
+                <div class="col-lg-4 col-12 d-flex justify-content-center" data-aos-duration="1000" data-aos="fade-up">
+                    <img class="photo-main" src="./img/PP.jpg" alt="Mohamed Sayid Lotfy" width="300px" height="300px"
+                        style="object-fit: cover; border-radius: 50%;" />
+                </div>
+
+                <div class="col-lg-8 col-12 mt-md-0 mt-5">
+                    <h4 class="text-bold color-theme" data-aos-duration="1000" data-aos="fade-up">
+                        IT Infrastructure &amp; Security Engineer</h4>
+                    <p data-aos-duration="1000" data-aos="fade-up">
+                        Experienced IT professional specializing in network infrastructure management, security
+                        implementation,
+                        and system administration. Proven track record in optimizing enterprise connectivity and
+                        deploying
+                        robust network solutions across complex environments.
+                    </p>
+                    <div class="row" data-aos-duration="1000" data-aos="fade-up">
+                        <div class="col-12 col-md-6">
+                            <ul>
+                                <li class="mt-3">
+                                    <span class="text-bold">Full Name:</span>
+                                    Mohamed Sayid Lotfy
+                                </li>
+                                <li class="mt-3">
+                                    <span class="text-bold">Mobile:</span>
+                                    <a href="tel:+201503333155">+20 150 333 3155</a>
+                                </li>
+                                <li class="mt-3">
+                                    <span class="text-bold">Email:</span>
+                                    <a href="mailto:mohamed-sayid@outlook.com">mohamed-sayid@outlook.com</a>
+                                </li>
+                                <li class="mt-3">
+                                    <span class="text-bold">Location:</span>
+                                    Egypt
+                                </li>
+                                <li class="mt-3">
+                                    <span class="text-bold">Open to work:</span>
+                                    Available
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <ul>
+                                <li class="mt-3" role="link">
+                                    <span class="text-bold">LinkedIn:</span>
+                                    <a
+                                        href="https://www.linkedin.com/in/mohamedelsayid">linkedin.com/in/mohamedelsayid</a>
+                                </li>
+                                <li class="mt-3" role="link">
+                                    <span class="text-bold">GitHub:</span>
+                                    <a href="https://github.com/tefamsl">github.com/tefamsl</a>
+                                </li>
+                                <li class="mt-3" role="link">
+                                    <span class="text-bold">Portfolio:</span>
+                                    <a href="https://tefamsl.github.io/Portfolio">tefamsl.github.io/Portfolio</a>
+                                </li>
+                                <li class="mt-3">
+                                    <span class="text-bold">Experience:</span>
+                                    3+ Years
+                                </li>
+                                <li class="mt-3">
+                                    <span class="text-bold">Languages:</span>
+                                    Arabic, English
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p data-aos-duration="1000" data-aos="fade-up">
+                        Have a project idea or need network infrastructure expertise?<br>
+                        Any questions regarding IT solutions or system administration?<br>
+                        Connect with me on the <a href="#contact">Contact Section</a> or send me an <a
+                            href="mailto:mohamed-sayid@outlook.com">email</a>.<br>
+                        Let's build something great together!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SKILLS ========== -->
+    <section id="skills" class="sections">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">What&nbsp;I&nbsp;do</h2>
+            <p class="info" data-aos-duration="1000" data-aos="fade-up">
+                Specialized in network infrastructure, security, and IT administration —
+                delivering reliable and optimized enterprise solutions through technical excellence and continuous
+                learning.
+            </p>
+            <div class="d-flex justify-content-center">
+                <div class="row width-75">
+                    <!-- Cisco -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/networkx/networkx-original.svg"
+                                onerror="this.src='https://img.icons8.com/color/96/cisco.png'" alt="Cisco" width="90"
+                                height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Cisco IOS</p>
+                        </div>
+                    </div>
+                    <!-- Windows Server -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://img.icons8.com/color/96/windows-10.png" alt="Windows Server" width="90"
+                                height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Windows Server</p>
+                        </div>
+                    </div>
+                    <!-- Linux -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg"
+                                alt="Linux" width="90" height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Linux</p>
+                        </div>
+                    </div>
+                    <!-- Azure -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg"
+                                alt="Microsoft Azure" width="90" height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Microsoft Azure</p>
+                        </div>
+                    </div>
+                    <!-- PowerShell / Active Directory -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="./img/ad.png" alt="Active Directory" width="90" height="60"
+                                style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Active Directory</p>
+                        </div>
+                    </div>
+                    <!-- SolarWinds / PRTG -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://img.icons8.com/color/96/combo-chart--v1.png" alt="Monitoring" width="90"
+                                height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">PRTG & SolarWinds</p>
+                        </div>
+                    </div>
+                    <!-- VMware/Hyper-V -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://img.icons8.com/color/96/vmware.png" alt="VMware" width="90" height="60"
+                                style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">VMware / Hyper-V</p>
+                        </div>
+                    </div>
+                    <!-- Fortinet -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="./img/fortinet.png" alt="Fortinet" width="90" height="60"
+                                style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Fortinet</p>
+                        </div>
+                    </div>
+                    <!-- Firewall / Security -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://img.icons8.com/color/96/firewall.png" alt="Firewall" width="90"
+                                height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Firewall / IDS</p>
+                        </div>
+                    </div>
+                    <!-- SOPHOS -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://img.icons8.com/color/96/security-checked.png" alt="SOPHOS" width="90"
+                                height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">SOPHOS</p>
+                        </div>
+                    </div>
+                    <!-- Veeam -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="./img/veeam.png" alt="Veeam" width="90" height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Veeam Backup</p>
+                        </div>
+                    </div>
+                    <!-- Microsoft 365 -->
+                    <div class="col-6 col-md-3 col-lg-2 d-flex justify-content-center align-item-center mt-2 mb-2"
+                        data-aos-duration="1000" data-aos="fade-up">
+                        <div class="skill-card text-center p-2">
+                            <img src="https://img.icons8.com/color/96/microsoft.png" alt="Microsoft" width="90"
+                                height="60" style="object-fit:contain">
+                            <p class="mt-1 mb-0" style="font-size:.75rem">Microsoft 365</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PROJECTS ========== -->
+    <section id="projects" class="sections">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">Projects</h2>
+            <p class="info" data-aos-duration="1000" data-aos="fade-up">
+                Developing a good work ethic is key. Apply yourself at whatever you do —
+                every deployment tells the story of problems solved and systems built to last.
+            </p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <div class="row mt-3" style="max-width:1100px;">
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🌐 Enterprise Network Overhaul</h5>
+                        <p>Redesigned flat network to L3 VLAN segmentation with OSPF at Viion. Reduced downtime to near
+                            zero; increased throughput by 75%.</p>
+                        <div class="project-tags"><span class="tag">Cisco IOS</span><span class="tag">OSPF</span><span
+                                class="tag">VLAN</span><span class="tag">Firewall</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🏥 Medical IT Infrastructure</h5>
+                        <p>Deployed Windows Server 2019, AD, Hyper-V and DR plan for Main Sharia Hospital. Achieved 99%+
+                            uptime for HIS and PACS systems.</p>
+                        <div class="project-tags"><span class="tag">Windows Server</span><span
+                                class="tag">Hyper-V</span><span class="tag">HIS</span><span class="tag">PACS</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🔐 Endpoint Security Hardening</h5>
+                        <p>GPO baseline across all domain machines — USB block, BitLocker, WSUS. Patch compliance
+                            improved from 40% to 98%.</p>
+                        <div class="project-tags"><span class="tag">GPO</span><span class="tag">WSUS</span><span
+                                class="tag">BitLocker</span><span class="tag">AD</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🖥️ P2V Server Migration</h5>
+                        <p>Migrated 6 physical servers to Hyper-V/VMware HA cluster. Cut hardware costs 60% and
+                            provisioning from days to minutes.</p>
+                        <div class="project-tags"><span class="tag">Hyper-V</span><span class="tag">VMware</span><span
+                                class="tag">P2V</span><span class="tag">HA Cluster</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>☁️ Azure / M365 Migration</h5>
+                        <p>Led migration from on-prem Exchange to Microsoft 365 — mailboxes, Teams, SharePoint — with
+                            zero email data loss.</p>
+                        <div class="project-tags"><span class="tag">M365</span><span class="tag">Exchange</span><span
+                                class="tag">Azure AD</span><span class="tag">SharePoint</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🤖 Network Automation Scripts</h5>
+                        <p>Python scripts using Netmiko/Paramiko to automate config backups of 200+ Cisco devices and
+                            push bulk changes securely.</p>
+                        <div class="project-tags"><span class="tag">Python</span><span class="tag">Netmiko</span><span
+                                class="tag">Cisco</span><span class="tag">Automation</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="homelab" class="sections">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">Home Lab</h2>
+            <p class="info" data-aos-duration="1000" data-aos="fade-up">
+                A dedicated proving ground for continuous learning, simulation, and testing of enterprise technologies
+                before they go to production. Where concepts become applied knowledge.
+            </p>
+
+            <!-- Live Monitoring Dashboard Nodes -->
+            <div class="row mt-4 mb-5" data-aos="fade-up" data-aos-duration="1000">
+                <!-- CPU Node -->
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="project-card node-card" style="background: rgba(10,20,30,0.6);">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="status-text"><i class="fas fa-microchip"></i> CPU NODE</span>
+                            <div class="pulse-mini"></div>
+                        </div>
+                        <div class="gauge-bar">
+                            <div class="gauge-fill cpu-fill" style="width: 32%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="small opacity-50">Usage</span>
+                            <span class="gauge-val cpu-val">32.4%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Memory Node -->
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="project-card node-card" style="background: rgba(10,20,30,0.6);">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="status-text"><i class="fas fa-memory"></i> RAM NODE</span>
+                            <div class="pulse-mini"></div>
+                        </div>
+                        <div class="gauge-bar">
+                            <div class="gauge-fill mem-fill" style="width: 58%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="small opacity-50">Allocated</span>
+                            <span class="gauge-val mem-val">58.1%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Net Node -->
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="project-card node-card" style="background: rgba(10,20,30,0.6);">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="status-text"><i class="fas fa-network-wired"></i> TRAFFIC</span>
+                            <div class="pulse-mini"></div>
+                        </div>
+                        <div class="gauge-bar">
+                            <div class="gauge-fill net-fill" style="width: 15%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="small opacity-50">Throughput</span>
+                            <span class="gauge-val net-val">1.2 Gbps</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .gauge-label {
+                font-size: 0.65rem;
+                color: #aaa;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+            }
+
+            .gauge-bar {
+                height: 6px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 4px;
+                overflow: hidden;
+                margin-bottom: 5px;
+            }
+
+            .gauge-fill {
+                height: 100%;
+                background: var(--theme-color);
+                transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .gauge-val {
+                font-size: 0.9rem;
+                font-family: 'IBM Plex Mono', monospace;
+                font-weight: bold;
+                color: var(--theme-color);
+            }
+
+            .node-card {
+                padding: 20px;
+                background: rgba(10, 20, 30, 0.4) !important;
+                border: 1px solid rgba(41, 182, 212, 0.2);
+            }
+
+            .pulse-mini {
+                width: 6px;
+                height: 6px;
+                background: #2ecc71;
+                border-radius: 50%;
+                box-shadow: 0 0 8px #2ecc71;
+                animation: pulse-green 1.5s infinite;
+            }
+        </style>
+        <div class="d-flex justify-content-center">
+            <div class="row mt-3" style="max-width:1100px;">
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🖧 Virtualization & Compute</h5>
+                        <p>High-availability cluster running <strong>Proxmox VE</strong> and <strong>Hyper-V</strong>.
+                            Hosting 20+ VMs and LXC containers for various infrastructure services.</p>
+                        <div class="project-tags"><span class="tag">Proxmox</span><span class="tag">Hyper-V</span><span
+                                class="tag">HA Cluster</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🛡️ Network & Security</h5>
+                        <p>Segmented VLAN infrastructure protected by <strong>pfSense / OPNsense</strong> or
+                            <strong>Fortinet</strong> VMs. Implementing IDS/IPS and secure site-to-site VPNs.
+                        </p>
+                        <div class="project-tags"><span class="tag">pfSense</span><span class="tag">Fortinet</span><span
+                                class="tag">VLAN</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🐳 Containerization</h5>
+                        <p><strong>Docker Swarm</strong> and <strong>Portainer</strong> stack managing microservices
+                            such as Pi-Hole/AdGuard Home, Nginx Proxy Manager, and monitoring stacks.</p>
+                        <div class="project-tags"><span class="tag">Docker</span><span class="tag">Portainer</span><span
+                                class="tag">Reverse Proxy</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>📁 Storage & Backup</h5>
+                        <p><strong>TrueNAS Core/Scale</strong> maintaining ZFS storage pools for SMB/NFS shares,
+                            integrated with <strong>Veeam Backup & Replication</strong> for VM snapshots.</p>
+                        <div class="project-tags"><span class="tag">TrueNAS</span><span class="tag">ZFS</span><span
+                                class="tag">Veeam Backup</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>🔑 Identity & Windows Server</h5>
+                        <p>Isolated Sandbox for replicating enterprise environments: <strong>Windows Server Active
+                                Directory</strong>, DNS, DHCP, and GPO lab simulations.</p>
+                        <div class="project-tags"><span class="tag">AD DS</span><span class="tag">Group
+                                Policy</span><span class="tag">DNS/DHCP</span></div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card">
+                        <h5>📊 Monitoring & Automation</h5>
+                        <p><strong>Zabbix / Grafana</strong> stack for real-time dashboarding of lab resources, with
+                            <strong>Ansible & Python</strong> scripts for automated deployment and config management.
+                        </p>
+                        <div class="project-tags"><span class="tag">Zabbix / Grafana</span><span
+                                class="tag">Ansible</span><span class="tag">Python</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CERTIFICATIONS & FEEDBACK ========== -->
+    <section id="certifications" class="sections">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">Certificates</h2>
+            <p class="info" data-aos-duration="1000" data-aos="fade-up">
+                Professional validation of technical expertise in enterprise networking, system administration, and
+                cybersecurity infrastructure.
+            </p>
+            <div class="row mt-4">
+                <!-- CCNA Card -->
+                <div class="col-12 col-md-6 col-lg-4 mb-4" data-aos="zoom-in" data-aos-duration="1000">
+                    <div class="project-card cert-card text-center" style="cursor: pointer;"
+                        onclick="viewCert('https://api.accredible.com/v1/frontend/credential_copy_image/badge/10123456')">
+                        <div class="cert-icon mb-3">
+                            <i class="fas fa-certificate fa-3x" style="color: gold;"></i>
+                        </div>
+                        <h5>Cisco Certified Network Associate (CCNA)</h5>
+                        <p class="mb-0">ID: CSCO15040282</p>
+                        <p class="text-muted small">Issued: Nov 2025 · Exp: Nov 2028</p>
+                        <div class="mt-3">
+                            <span class="tag">CCNA 200-301</span>
+                            <span class="tag">Switching & Routing</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- CCNP Card -->
+                <div class="col-12 col-md-6 col-lg-4 mb-4" data-aos="zoom-in" data-aos-duration="1000"
+                    data-aos-delay="200">
+                    <div class="project-card cert-card text-center" style="cursor: pointer;"
+                        onclick="viewCert('https://api.accredible.com/v1/frontend/credential_copy_image/badge/10234567')">
+                        <div class="cert-icon mb-3">
+                            <i class="fas fa-award fa-3x" style="color: silver;"></i>
+                        </div>
+                        <h5>CCNP Enterprise: Core Networking</h5>
+                        <p class="mb-0">Advanced Enterprise Network Infrastructure</p>
+                        <p class="text-muted small">Cisco Academy Certified</p>
+                        <div class="mt-3">
+                            <span class="tag">ENCOR 350-401</span>
+                            <span class="tag">BGP / OSPF / VPN</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- MCSA Card -->
+                <div class="col-12 col-md-6 col-lg-4 mb-4" data-aos="zoom-in" data-aos-duration="1000"
+                    data-aos-delay="400">
+                    <div class="project-card cert-card text-center" style="cursor: pointer;"
+                        onclick="viewCert('https://api.accredible.com/v1/frontend/credential_copy_image/badge/10345678')">
+                        <div class="cert-icon mb-3">
+                            <i class="fab fa-microsoft fa-3x" style="color: #00a4ef;"></i>
+                        </div>
+                        <h5>MCSA: Windows Server 2016</h5>
+                        <p class="mb-0">Identity · Storage · Compute</p>
+                        <p class="text-muted small">Microsoft System Administration</p>
+                        <div class="mt-3">
+                            <span class="tag">Active Directory</span>
+                            <span class="tag">Hyper-V</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="magnify_text mt-5" data-aos-duration="1000" data-aos="fade-up">Feedback</h2>
+            <div class="row mt-3">
+                <div class="col-12 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card" style="border-left: 4px solid var(--theme-color);">
+                        <h5>"Mohamed completely transformed our network infrastructure."</h5>
+                        <p style="font-style: italic;">"Broadcast storms were a daily frustration — after his VLAN
+                            redesign and OSPF rollout, we haven't had a single major outage."</p>
+                        <span class="text-bold" style="color: var(--theme-color); font-size: 0.85rem;">— Executive
+                            Feedback</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card" style="border-left: 4px solid var(--theme-color);">
+                        <h5>"HIS/PACS systems went to 99%+ uptime."</h5>
+                        <p style="font-style: italic;">"His calm under pressure and depth of knowledge kept us
+                            operational during a critical period."</p>
+                        <span class="text-bold" style="color: var(--theme-color); font-size: 0.85rem;">— Medical IT
+                            Stakeholder</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mt-3" data-aos-duration="1000" data-aos="fade-up">
+                    <div class="project-card" style="border-left: 4px solid var(--theme-color);">
+                        <h5>"Patch compliance went from 40% to 98%."</h5>
+                        <p style="font-style: italic;">"Outstanding work ethic and technical precision."</p>
+                        <span class="text-bold" style="color: var(--theme-color); font-size: 0.85rem;">— IT Operations
+                            Management</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certificate Modal (Lightbox) -->
+    <div id="certModal" class="modal-overlay" onclick="closeCert()">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="certImg">
+        <div id="caption">Certificate Preview</div>
+    </div>
+
+    <style>
+        .cert-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cert-card:hover {
+            transform: scale(1.05) rotate(1deg);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 100000;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 800px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+        }
+
+        .hamburger {
+            display: none;
+        }
+    </style>
+
+    <!-- ========== RESUME ========== -->
+    <section id="resume" class="sections">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">Resume</h2>
+            <p class="info" data-aos-duration="1000" data-aos="fade-up">
+                One of the best pieces of advice I ever got was from a horse master.
+                He told me to go slow to go fast. I think that applies to everything in life.
+            </p>
+            <div class="row">
+                <div class="col-12 col-md-6 mt-3 p-3">
+                    <h4 style="font-weight:700;" data-aos-duration="1000" data-aos="fade-up">Education</h4>
+                    <div class="timeline mt-4" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>B.Sc. Management Information Systems</h4>
+                        <p>Sep 2019 – Jul 2023</p>
+                        <h5>Al-Abbasiya Institute · Cairo</h5>
+                        <p>Information Systems · Database Management · IT Infrastructure</p>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>CCNA — Cisco Networking Academy</h4>
+                        <p>2024</p>
+                        <h5>SCAL Academy · Egypt</h5>
+                        <p>3 Modules: Intro · Switching &amp; Routing · Enterprise Networking</p>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>CCNP Enterprise: Core Networking</h4>
+                        <p>Dec 2024</p>
+                        <h5>SCAL Academy · Egypt</h5>
+                        <p>OSPF · EIGRP · eBGP · QoS · VPN · Automation</p>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>MCSA 2016 (60 Hours)</h4>
+                        <p>Jan 2025 · SN: 1010</p>
+                        <h5>SCAL Academy · Egypt</h5>
+                    </div>
+
+                    <h4 style="font-weight:700;margin-top:28px;" data-aos-duration="1000" data-aos="fade-up">
+                        Achievements</h4>
+                    <div class="timeline mt-4" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>CCNA Certified — CSCO15040282</h4>
+                        <p>Valid: Nov 2025 – Nov 2028</p>
+                        <p>Achieved while managing two simultaneous full-time roles.</p>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>Network Performance +75%</h4>
+                        <p>Viion · 2024</p>
+                        <p>Targeted infrastructure optimization &amp; OSPF redesign.</p>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>Security Incidents ↓90%</h4>
+                        <p>Multi-layer firewall policies &amp; endpoint protection deployment.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 mt-3 p-3">
+                    <h4 style="font-weight:700;" data-aos-duration="1000" data-aos="fade-up">Work Experience</h4>
+                    <div class="timeline mt-4" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>Network &amp; System Administrator</h4>
+                        <p>Jul 2024 – Present</p>
+                        <h5>Viion</h5>
+                        <ul>
+                            <li>Administered Firewalls, Switches, Routers for stable secure connectivity.</li>
+                            <li>Managed Windows Server: AD, DHCP, DNS, Group Policy.</li>
+                            <li>Supported Hyper-V &amp; VMware; configured secure VPN solutions.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>System Administrator</h4>
+                        <p>Sep 2024 – Present</p>
+                        <h5>Main Sharia Association Hospital</h5>
+                        <ul>
+                            <li>Managed IT infrastructure for network security &amp; system reliability.</li>
+                            <li>Implemented cloud services and cybersecurity measures.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>IT Specialist</h4>
+                        <p>Apr 2024 – Aug 2024</p>
+                        <h5>Xceed</h5>
+                        <ul>
+                            <li>Provided technical assistance and remote troubleshooting.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline" data-aos-duration="1000" data-aos="fade-up">
+                        <h4>Team Leader — Courier Care</h4>
+                        <p>Nov 2023 – Apr 2024</p>
+                        <h5>Mrsool (Xceed)</h5>
+                        <ul>
+                            <li>Supervised courier services tracking performance metrics.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CONTACT ========== -->
+    <section id="contact" class="sections" style="padding-bottom: 60px;">
+        <div class="container">
+            <h2 class="magnify_text" data-aos-duration="1000" data-aos="fade-up">Contact</h2>
+            <div class="row mt-3" data-aos-duration="1000" data-aos="fade-up">
+                <div class="col-12 col-md-4">
+                    <div class="d-flex align-item-center contact-block">
+                        <div class="contact_logo email">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="d-flex justify-content-center flex-column">
+                            <h4 class="mb-0">Email: </h4>
+                            <p class="mb-0"><a href="mailto:mohamed-sayid@outlook.com">mohamed-sayid@outlook.com</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-item-center contact-block">
+                        <div class="contact_logo mobile">
+                            <i class="fas fa-mobile"></i>
+                        </div>
+                        <div class="d-flex justify-content-center flex-column">
+                            <h4 class="mb-0">Mobile: </h4>
+                            <p class="mb-0">+20 150 333 3155</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-item-center contact-block">
+                        <div class="contact_logo location">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="d-flex justify-content-center flex-column">
+                            <h4 class="mb-0">Location: </h4>
+                            <p class="mb-0">Egypt</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-item-center contact-block">
+                        <div class="contact_logo whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="d-flex justify-content-center flex-column">
+                            <h4 class="mb-0">WhatsApp: </h4>
+                            <p class="mb-0"><a href="https://wa.me/201503333155">+20 150 333 3155</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8">
+                    <form class="p-2" data-aos-duration="1000" data-aos="fade-up" onsubmit="sendMail(event)">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control" placeholder="Name" required id="name">
+                            </div>
+                            <div class="col">
+                                <input type="email" class="form-control" placeholder="Email" required id="email">
+                            </div>
+                        </div>
+                        <input type="text" class="form-control mt-2" placeholder="Subject" required id="subject">
+                        <textarea name="" cols="30" rows="5" placeholder="Message..." class="form-control mt-2" required
+                            id="message"></textarea>
+                        <div class="d-flex justify-content-center p-3">
+                            <button type="submit" class="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer Wave -->
+    <footer style="padding:0;margin:0;">
+        <svg viewBox="0 0 120 28" preserveAspectRatio="none" style="display:block;height:120px;width:100%;">
+            <defs>
+                <path id="wave"
+                    d="M 0,10 C 30,10 30,15 60,15 90,15 90,10 120,10 150,10 150,15 180,15 210,15 210,10 240,10 v 28 h -240 z" />
+            </defs>
+            <use class="wave" xlink:href="#wave" x="0" y="-2"
+                style="opacity:0.3;fill:var(--theme-color);animation:wave-anim 13s linear infinite;"></use>
+            <use class="wave" xlink:href="#wave" x="0" y="1"
+                style="opacity:0.5;fill:#4a90b8;animation:wave-anim 10s linear infinite reverse;"></use>
+            <use class="wave" xlink:href="#wave" x="0" y="3"
+                style="opacity:0.7;fill:var(--theme-color);animation:wave-anim 7s linear infinite;"></use>
+        </svg>
+    </footer>
+
+    <div class="cursor"></div>
+    <div id="stop" class="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js"
+        integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
+    <script src="./js/main.js" defer></script>
+</body>
+
+</html>

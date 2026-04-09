@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLI Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #040a0f;
+      --surf: #0a141d;
+      --brd: rgba(74,144,184,.15);
+      --acc: #4a90b8;
+      --txt: rgba(255,255,255,.9);
+      --mut: rgba(255,255,255,.45);
+      --grn: #2ecc71;
+      --ylw: #f1c40f;
+      --red: #e74c3c;
+      --cli-bg: rgba(4,10,15,.97);
+      --cli-txt: #e2e8f0;
+      --cli-border: rgba(74,144,184,.25);
+      --mono: "IBM Plex Mono", monospace;
+    }
+    body, html {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: var(--bg);
+      font-family: var(--mono);
+      overflow: hidden;
+      color: var(--txt);
+    }
+    #mx {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 1;
+    }
+    #cli {
+      position: fixed; inset: 0; z-index: 600; background: var(--cli-bg);
+      display: flex; flex-direction: column; font-family: var(--mono);
+    }
+    .cli-header {
+      background: var(--surf); border-bottom: 1px solid var(--cli-border);
+      padding: 9px 22px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .cli-dots { display: flex; gap: 5px; }
+    .cli-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .cli-dot-r { background: #ff5f57; cursor: pointer; }
+    .cli-dot-y { background: #ffbd2e; cursor: pointer; }
+    .cli-dot-g { background: #28c840; cursor: pointer; }
+    .cli-title { font-size: 11px; color: var(--mut); letter-spacing: .1em; flex: 1; text-align: center; }
+    .cli-hint { font-size: 10px; color: var(--mut); }
+    #cli-output {
+      flex: 1; overflow-y: auto; padding: 18px 22px; scrollbar-width: thin;
+      scrollbar-color: var(--brd) transparent; display: flex; flex-direction: column; gap: 0;
+    }
+    .cli-line { font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+    .cli-cmd { color: var(--acc); }
+    .cli-resp { color: var(--cli-txt); }
+    .cli-err { color: var(--red); }
+    .cli-h { color: var(--acc); font-weight: 700; }
+    .cli-dim { color: var(--mut); }
+    .cli-grn { color: var(--grn); }
+    .cli-ylw { color: var(--ylw); }
+    .cli-acc { color: var(--acc); }
+    .cli-logo-anim { color: #5ba4e3; white-space: pre; }
+    .cli-input-row {
+      border-top: 1px solid var(--cli-border); padding: 11px 22px;
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0; background: var(--surf);
+    }
+    .cli-prompt { color: var(--acc); font-size: 13px; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+    .cli-prompt-path { color: var(--grn); font-size: 13px; font-weight: bold; }
+    #cli-in {
+      background: transparent; border: none; outline: none; color: var(--txt);
+      font-family: var(--mono); font-size: 13px; flex: 1; caret-color: var(--acc);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="mx"></canvas>
+  <div id="cli">
+    <div class="cli-header">
+      <div class="cli-dots">
+        <div class="cli-dot cli-dot-r" onclick="goHome()" title="Close CLI"></div>
+        <div class="cli-dot cli-dot-y" onclick="goHome()"></div>
+        <div class="cli-dot cli-dot-g" onclick="goHome()"></div>
+      </div>
+      <div class="cli-title">msl@portfolio:~$ — Terminal Mode</div>
+      <div class="cli-hint">Tab=autocomplete · ↑↓=history · ESC=normal mode</div>
+    </div>
+    <div id="cli-output"></div>
+    <div class="cli-input-row">
+      <span class="cli-prompt">
+        <span class="cli-prompt-path">msl@portfolio</span>:<span style="color:var(--acc)">~</span>$
+      </span>
+      <input id="cli-in" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="type 'help' to start..." autofocus>
+    </div>
+  </div>
+  <script>
+    function goHome() {
+        window.location.href = "index.html";
+    }
+
+    const cv = document.getElementById("mx"), cx = cv.getContext("2d");
+    const CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ</>[]{}";
+    const FS = 14; let cols, drops;
+    function initMx() { cv.width = innerWidth; cv.height = innerHeight; cols = Math.floor(cv.width / FS); drops = Array(cols).fill(1); }
+    initMx(); window.addEventListener("resize", initMx);
+
+    const maskASCII = [
+      "                                                                ",
+      "                      .xOOOOOOOOOOOOOOOOx.                      ",
+      "                    .xOOOOOOOOOOOOOOOOOOOOx.                    ",
+      "                  .xOOOOOOOOOOOOOOOOOOOOOOOOx.                  ",
+      "                 xOOOOOOOOOOOOOOOOOOOOOOOOOOOOx                 ",
+      "                xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx                ",
+      "               xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx               ",
+      "              xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx              ",
+      "             xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx             ",
+      "             xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx             ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOx            ",
+      "            xOOOOOOOOx      OOOOOOOO      xOOOOOOOOx            ",
+      "            xOOOOOOx        OOOOOOOO        xOOOOOOx            ",
+      "            xOOOOOx         OOOOOOOO         xOOOOOx            ",
+      "            xOOOOOx         OOOOOOOO         xOOOOOx            ",
+      "            xOOOOOx         OOOOOOOO         xOOOOOx            ",
+      "            xOOOOOOx        OOOOOOOO        xOOOOOOx            ",
+      "            xOOOOOOOOxx    xOOOOOOOOx    xxOOOOOOOOx            ",
+      "             xOOOOOOOOOxxxxOOOOOOOOOOxxxxOOOOOOOOOx             ",
+      "             xOOOOOOOOOxxxxOOOOOOOOOOxxxxOOOOOOOOOx             ",
+      "              xOOOOOOOOOxx  xOOOOOOx  xxOOOOOOOOOx              ",
+      "               xOOOOOOOOOx   xxOOxx   xOOOOOOOOOx               ",
+      "                xOOOOOOOOOx          xOOOOOOOOOx                ",
+      "                 xOOOOOOOOOx        xOOOOOOOOOx                 ",
+      "                  xOOOOOOOOOx      xOOOOOOOOOx                  ",
+      "                   xOOOOOOOOxxxxxxxxOOOOOOOOx                   ",
+      "                    xOOOOOOOOOOOOOOOOOOOOOOx                    ",
+      "                     xOOOOOOOOOOOOOOOOOOOOx                     ",
+      "                     xOOOOOOOOOOOOOOOOOOOOx                     ",
+      "                     xOOOOOOOOOOOOOOOOOOOOx                     ",
+      "                      xOOxxOOxxOOxxOOxxOOx                      ",
+      "                      xOO  OO  OO  OO  OOx                      ",
+      "                      xOO  OO  OO  OO  OOx                      ",
+      "                      xOO  OO  OO  OO  OOx                      ",
+      "                      xOO  OO  OO  OO  OOx                      ",
+      "                      xOO  OO  OO  OO  OOx                      ",
+      "                      xOO  OO  OO  OO  OOx                      ",
+      "                      xOOxxOOxxOOxxOOxxOOx                      ",
+      "                      xOOOOOOOOOOOOOOOOOOx                      ",
+      "                       xOOOOOOOOOOOOOOOOx                       ",
+      "                        xOOOOOOOOOOOOOOx                        ",
+      "                          xxxxxxxxxxxx                          ",
+      "                                                                "
+    ];
+
+    let showHacked = false;
+    setInterval(() => {
+      if (showHacked) {
+        cx.fillStyle = "rgba(4,10,15,0.08)";
+      } else {
+        cx.fillStyle = "rgba(4,10,15,0.04)";
+      }
+      cx.fillRect(0, 0, cv.width, cv.height);
+
+      for (let i = 0; i < drops.length; i++) {
+        const r = Math.random();
+        const x = i;
+        const y = drops[i];
+        cx.font = FS + "px IBM Plex Mono,monospace";
+        let char = CHARS[Math.floor(Math.random() * CHARS.length)];
+
+        let inMask = false;
+        let maskChar = ' ';
+
+        if (showHacked) {
+          const mCols = maskASCII[0].length;
+          const mRows = maskASCII.length;
+          const startX = Math.floor(cols / 2 - mCols / 2);
+          const startY = Math.floor((cv.height / FS) / 2 - mRows / 2);
+
+          if (x >= startX && x < startX + mCols && y >= startY && y < startY + mRows) {
+            maskChar = maskASCII[y - startY][x - startX];
+            if (maskChar !== ' ') {
+              inMask = true;
+            }
+          }
+        }
+
+        if (inMask) {
+          if (maskChar === 'O') {
+            cx.fillStyle = "#ff0000";
+            cx.shadowBlur = 10;
+            cx.shadowColor = "#ff0000";
+          } else if (maskChar === 'x') {
+            cx.fillStyle = "#ff3333";
+            cx.shadowBlur = 8;
+            cx.shadowColor = "#ff0000";
+          } else {
+            cx.fillStyle = "rgba(255, 0, 0, 0.6)";
+            cx.shadowBlur = 2;
+            cx.shadowColor = "#ff0000";
+          }
+        } else {
+          cx.shadowBlur = 0;
+          if (showHacked) {
+            if (r > .98) cx.fillStyle = "rgba(255,255,255,0.3)";
+            else if (r > .90) cx.fillStyle = "rgba(46, 204, 113, 0.4)";
+            else cx.fillStyle = "rgba(46, 204, 113, 0.08)";
+          } else {
+            if (r > .97) cx.fillStyle = "rgba(200,235,255,1)";
+            else if (r > .85) cx.fillStyle = "rgba(74,144,184,1)";
+            else cx.fillStyle = "rgba(74,144,184,0.65)";
+          }
+        }
+
+        cx.fillText(char, x * FS, y * FS);
+        if (y * FS > cv.height && Math.random() > .976) drops[i] = 0;
+        drops[i]++;
+      }
+
+      if (showHacked) {
+        const boxText = " SYSTEM FAILURE // HACKED BY TEFA ";
+        cx.font = "bold " + (FS + 2) + "px IBM Plex Mono,monospace";
+        const textMetrics = cx.measureText(boxText);
+        const bw = textMetrics.width + 40;
+        const bh = FS * 3;
+        const bx = cv.width / 2 - bw / 2;
+        const by = cv.height / 2 - bh / 2 + FS * 10;
+
+        cx.fillStyle = "rgba(4,10,15,0.95)";
+        cx.shadowBlur = 0;
+        cx.fillRect(bx, by, bw, bh);
+
+        cx.strokeStyle = "#2ecc71";
+        cx.lineWidth = 2;
+        cx.strokeRect(bx, by, bw, bh);
+
+        cx.fillStyle = "#ffffff";
+        cx.textAlign = "center";
+        cx.shadowBlur = 15;
+        cx.shadowColor = "#2ecc71";
+        cx.fillText(boxText, cv.width / 2, by + bh / 2 + FS * 0.35);
+        cx.textAlign = "left";
+        cx.shadowBlur = 0;
+      }
+    }, 60);
+
+    let cliBooted = false;
+    let cliHistory = [], cliHistIdx = -1;
+    const CMDS = ["help", "whoismsl", "summary", "experience", "skills", "projects", "homelab", "services", "casestudies", "education", "certgallery", "achievements", "techlibrary", "analysis", "socialproof", "contact", "clear", "exit", "ls", "date", "sudo", "ping", "top", "matrix", "neofetch"];
+    
+    // --- CLI DATA DICTIONARY (D) ---
+    const D = {
+      whoismsl: `<span class="cli-h">// WHO IS MSL</span>\n\n  <span class="cli-grn">Name     :</span> Mohamed Sayid Lotfy\n  <span class="cli-grn">Title    :</span> Network & System Administrator\n  <span class="cli-grn">Location :</span> Cairo, Egypt 🇪🇬\n  <span class="cli-grn">Email    :</span> mohamed-sayid@outlook.com\n  <span class="cli-grn">Phone    :</span> +20 150 333 3155\n  <span class="cli-grn">LinkedIn :</span> linkedin.com/in/mohamedelsayid\n  <span class="cli-grn">Status   :</span> <span class="cli-grn">● Open to Work — Available Now</span>\n\n  <span class="cli-ylw">Quick Bio:</span>\n  IT Specialist with 5+ years managing enterprise networks,\n  cloud solutions & Medical IT. Currently holding dual roles\n  at Viion and Main Sharia Association Hospital.\n\n  <span class="cli-ylw">Certifications:</span>\n  🥇 CCNA (ID: CSCO15040282 · Valid Nov 2028)\n  ⚙️  CCNP Enterprise: Core Networking\n  🖥️  MCSA 2016 (60 Hours)\n\n  <span class="cli-ylw">Languages:</span>  Arabic (Native) · English (Advanced)\n  <span class="cli-ylw">Military :</span>  Permanently Exempt`,
+      help: `<span class="cli-h">// AVAILABLE COMMANDS</span>\n\n  <span class="cli-ylw">Navigation:</span>\n  <span class="cli-grn">1</span> / <span class="cli-grn">whoismsl</span>      → Who is Mohamed Sayid Lotfy?\n  <span class="cli-grn">2</span> / <span class="cli-grn">summary</span>       → Professional overview\n  <span class="cli-grn">3</span> / <span class="cli-grn">experience</span>    → Full work history\n  <span class="cli-grn">4</span> / <span class="cli-grn">skills</span>        → Technical skills\n  <span class="cli-grn">5</span> / <span class="cli-grn">projects</span>      → Projects\n  <span class="cli-grn">6</span> / <span class="cli-grn">homelab</span>       → Homelab\n  <span class="cli-grn">7</span> / <span class="cli-grn">services</span>      → IT Services\n  <span class="cli-grn">8</span> / <span class="cli-grn">casestudies</span>   → Case Studies\n  <span class="cli-grn">9</span> / <span class="cli-grn">education</span>     → Academic background\n  <span class="cli-grn">10</span>/ <span class="cli-grn">certgallery</span>   → Certificates Gallery\n  <span class="cli-grn">11</span>/ <span class="cli-grn">achievements</span>  → Key wins & milestones\n  <span class="cli-grn">12</span>/ <span class="cli-grn">techlibrary</span>   → Tech Library Base\n  <span class="cli-grn">13</span>/ <span class="cli-grn">analysis</span>      → Analysis\n  <span class="cli-grn">14</span>/ <span class="cli-grn">socialproof</span>   → Social Proof\n  <span class="cli-grn">15</span>/ <span class="cli-grn">contact</span>       → Contact & social links\n\n  <span class="cli-ylw">Utilities & Fun:</span>\n  <span class="cli-grn">ls</span>     → List all sections\n  <span class="cli-grn">date</span>   → Current date & time\n  <span class="cli-grn">ping</span>   → Network speed check\n  <span class="cli-grn">sudo</span>   → Root access test\n  <span class="cli-grn">top</span>    → Real-time resources\n  <span class="cli-grn">matrix</span> → Digital rain effect\n  <span class="cli-grn">clear</span>  → Clear terminal\n  <span class="cli-grn">exit</span>   → Back to Normal mode\n\n  <span class="cli-dim">Tab=autocomplete · ↑↓=history · ESC=normal</span>`,
+      summary: `<span class="cli-h">// PROFESSIONAL SUMMARY</span>\n5+ years IT experience · CCNA/CCNP certified\nDual roles: Viion (Network Admin) + Hospital (SysAdmin)\n75% network performance boost · 90% security incidents reduced`,
+      skills: `<span class="cli-h">// SKILLS</span>\nNetwork: LAN/WAN/VLAN, Firewall, VPN, OSPF, Cisco IOS\nSystems: Windows Server, AD, DHCP/DNS, Hyper-V, VMware\nSecurity: Cybersecurity, Cloud Services, Endpoint Protection`,
+      contact: `<span class="cli-h">// CONTACT</span>\n  📧 mohamed-sayid@outlook.com\n  📞 +20 150 333 3155\n  💼 linkedin.com/in/mohamedelsayid\n  <span class="cli-grn">● Available Now</span>`,
+      ls: `summary/ experience/ education/ achievements/ skills/ certifications/ homelab/ services/ certgallery/ techlibrary/ contact/ casestudies/ socialproof/ projects/`,
+      socialproof: `<span class="cli-h">// SOCIAL PROOF</span>\n⭐ 8 LinkedIn Recommendations — 5-star average\n✓ CCNA ID: CSCO15040282 · Verified Cisco credential\n📊 75% network boost · 90% incidents reduced · 99%+ medical uptime\n💼 Currently holding 2 active roles simultaneously`,
+      casestudies: `<span class="cli-h">// CASE STUDIES</span>\n🌐 Enterprise Network Overhaul — Viion [+75% throughput]\n🏥 Medical IT Stabilisation — Hospital [99%+ uptime]\n🛡️ Endpoint Security Hardening — 100% policy compliance\n🖥️ Legacy Server Migration — 60% cost reduction via virtualisation`,
+      experience: `<span class="cli-h">// EXPERIENCE</span>\nNetwork & System Admin — Viion [Jul 2024–Present]\nSystem Admin — Main Sharia Hospital [Sep 2024–Present]\nIT Specialist — Xceed [Apr–Aug 2024]\nTeam Leader — Mrsool [Nov 2023–Apr 2024]`,
+      education: `<span class="cli-h">// EDUCATION</span>\n  <span class="cli-ylw">Academic Degree:</span>\n  🎓 B.Sc. in Management Information Systems (MIS)\n     Al-Abbasiya Institute [2019–2023]\n     Focus: IT Management, Database Administration, Network Basics\n  \n  <span class="cli-ylw">Professional Training & Certifications:</span>\n  🥇 Cisco Certified Network Associate (CCNA) - Verified ID: CSCO15040282 [Valid Nov 2028]\n  ⚙️ Cisco Certified Network Professional (CCNP) Enterprise: Core Networking [2024]\n  🖥️ Microsoft Certified Solutions Associate (MCSA) 2016 Server - 60 Hours Training [2025]\n  🛡️ Fortinet NSE 1, 2 & 3 - Network Security Expert [In Progress]\n  ☁️ Microsoft Azure Fundamentals AZ-900`,
+      achievements: `<span class="cli-h">// KEY ACHIEVEMENTS</span>\n  🏆 <span class="cli-grn">Network Optimization:</span> Increased enterprise network throughput by 75% at Viion.\n  🏆 <span class="cli-grn">Security Hardening:</span> Reduced security incidents and vulnerabilities by 90% across 5 branches.\n  🏆 <span class="cli-grn">Infrastructure Modernization:</span> Successfully migrated legacy physical servers to virtualized Hyper-V clusters, reducing hardware costs by 60%.\n  🏆 <span class="cli-grn">Healthcare IT Stability:</span> Achieved 99.9% uptime for critical medical systems at Main Sharia Association Hospital.`,
+      homelab: `<span class="cli-h">// HOMELAB</span>\n  🖥️ VMware ESXi / Hyper-V Servers\n  ⚙️ Cisco GNS3/EVE-NG Emulations\n  🌐 pfSense / FortiGate VMs\n  🔐 Active Directory Test Domain`,
+      services: `<span class="cli-h">// IT SERVICES</span>\n  🛠️ Network Design & Implementation\n  🛡️ Penetration Testing & Hardening\n  ☁️ P2V / Cloud Migrations\n  💾 Backup Systems Design`,
+      certgallery: `<span class="cli-h">// CERTIFICATE GALLERY</span>\n  <span class="cli-ylw">Networking:</span>\n  📜 CCNA (Cisco Certified Network Associate)\n  📜 CCNP Enterprise: Core Networking\n  \n  <span class="cli-ylw">Systems & Servers:</span>\n  📜 MCSA 2016 (Microsoft Certified Solutions Associate)\n  📜 Active Directory & Windows Server Administration\n  \n  <span class="cli-ylw">Security & Cloud:</span>\n  📜 Fortinet NSE 1, NSE 2, NSE 3\n  📜 Microsoft Azure Fundamentals (AZ-900)`,
+      techlibrary: `<span class="cli-h">// TECH LIBRARY BASE</span>\n  <span class="cli-ylw">Reference Guides & Baselines:</span>\n  📚 Cisco IOS Configuration Templates (VLANs, STP, OSPF, ACLs)\n  📚 Windows Server GPO Security Baselines & Hardening\n  📚 Active Directory Best Practices & Troubleshooting\n  📚 FortiGate/pfSense Firewall Rule Strategies\n  📚 Veeam Backup & Replication 3-2-1 Strategy Guide\n  📚 VMware ESXi & Hyper-V Optimization and P2V Migration\n  📚 Enterprise Wi-Fi Security (WPA3-Enterprise, RADIUS)\n  📚 Linux Server Security Baselines`,
+      analysis: `<span class="cli-h">// SYSTEM & PERFORMANCE ANALYSIS</span>\n  <span class="cli-grn">Bandwidth Utilization:</span> Optimized traffic routing resulting in 40% less WAN saturation.\n  <span class="cli-grn">Server Resource Allocation:</span> Rebalanced VM resources preventing CPU/RAM bottlenecking across 12 VMs.\n  <span class="cli-grn">Incident Response Time:</span> Reduced MTTR (Mean Time To Repair) by 50% using proactive PRTG/Zabbix monitoring.\n  <span class="cli-grn">Security Posture:</span> Deployed endpoint protection and centralized patching, achieving 100% compliance.`,
+      projects: `<span class="cli-h">// PROJECTS</span>\n  🏥 Hospital Network Modernization [VLAN/OSPF/Security]\n  🔐 Enterprise Active Directory Migration [Windows Server/GPO]\n  ☁️ Hyper-V Server Virtualization [Disaster Recovery/Consolidation]\n  🔥 Fortigate Firewall & VPN Deployment [Network Security]\n  💾 Veeam Backup & Replication [3-2-1 Strategy]\n  🛡️ Endpoint Threat Response Setup [Sophos/Kaspersky]\n  📶 Secure Enterprise Wireless [RADIUS/WPA3]\n  ⚙️ WSUS Automated Patch Management [Centralized Updates]\n  🔌 Cisco Core Switch Port Security [Access Control]\n  ☁️ Azure Cloud Hybrid Connectivity [Azure VMs/VPN]\n  🎫 ITIL Helpdesk & Ticketing Rollout [Tier 1-3 SLAs]\n  🏢 Office Relocation & IT Build-Out [Cabling/Racking]`
+    };
+
+    function cliPrint(html, cls = "cli-resp") {
+      const el = document.createElement("div");
+      el.className = "cli-line " + cls;
+      el.innerHTML = html;
+      document.getElementById("cli-output").appendChild(el);
+      document.getElementById("cli-output").scrollTop = 99999;
+    }
+
+    function bootCLI() {
+      cliPrint(`<span class="cli-logo-anim">
+████████╗███████╗███████╗ █████╗ 
+╚══██╔══╝██╔════╝██╔════╝██╔══██╗
+   ██║   █████╗  █████╗  ███████║
+   ██║   ██╔══╝  ██╔══╝  ██╔══██║
+   ██║   ███████╗██║     ██║  ██║
+   ╚═╝   ╚══════╝╚═╝     ╚═╝  ╚═╝</span>`);
+      cliPrint(`<span class="cli-h">Mohamed Sayid Lotfy — Network & System Administrator</span>`);
+      cliPrint(`<span class="cli-dim">────────────────────────────────────────</span>`);
+      const menuItems = [
+        ["Who is Mohamed Sayid Lotfy?", "1", "whoismsl"],
+        ["Professional Summary", "2", "summary"],
+        ["Work Experience", "3", "experience"],
+        ["Technical Skills", "4", "skills"],
+        ["Projects", "5", "projects"],
+        ["Homelab", "6", "homelab"],
+        ["IT Services", "7", "services"],
+        ["Case Studies", "8", "casestudies"],
+        ["Education", "9", "education"],
+        ["Certificates Gallery", "10", "certgallery"],
+        ["Key Achievements", "11", "achievements"],
+        ["Tech Library Base", "12", "techlibrary"],
+        ["Analysis", "13", "analysis"],
+        ["Social Proof", "14", "socialproof"],
+        ["Contact Info", "15", "contact"],
+      ];
+      menuItems.forEach(([label, num, cmd]) => {
+        const padded = label.padEnd(30, " ");
+        cliPrint(`<span class="cli-ylw">${padded}</span><span class="cli-dim">→ press</span> <span class="cli-grn">${num}</span> <span class="cli-dim">or type</span> <span class="cli-grn">${cmd}</span>`);
+      });
+      cliPrint(`<span class="cli-dim">────────────────────────────────────────</span>`);
+      cliPrint(`<span class="cli-dim">Tab=autocomplete · ↑↓=history · ESC=normal · clear · exit</span>`);
+      cliPrint('');
+    }
+
+    const NUM_MAP = { "1": "whoismsl", "2": "summary", "3": "experience", "4": "skills", "5": "projects", "6": "homelab", "7": "services", "8": "casestudies", "9": "education", "10": "certgallery", "11": "achievements", "12": "techlibrary", "13": "analysis", "14": "socialproof", "15": "contact" };
+
+    function runCLI(cmd) {
+      cmd = cmd.trim().toLowerCase();
+      if (!cmd) return;
+      cliHistory.unshift(cmd); cliHistIdx = -1;
+      const mapped = NUM_MAP[cmd] || cmd;
+      cliPrint(`<span class="cli-cmd">$ ${cmd}${mapped !== cmd ? ' → ' + mapped : ''}</span>`);
+
+      if (mapped === "clear" || cmd === "clear") { document.getElementById("cli-output").innerHTML = ""; bootCLI(); return }
+      if (mapped === "exit" || cmd === "exit") { goHome(); return }
+      if (mapped === "date" || cmd === "date") { cliPrint(new Date().toString()); return }
+      if (mapped === "menu" || cmd === "menu") { document.getElementById("cli-output").innerHTML = ""; bootCLI(); return }
+
+      if (cmd === "sudo") {
+        cliPrint(`<span class="cli-err">Permission denied: user "Guest" is not in the sudoers file. This incident will be reported.</span>`);
+        return;
+      }
+      if (cmd === "ping") {
+        cliPrint(`PING msl.it (192.168.1.1): 56 data bytes`);
+        let count = 0;
+        const pInt = setInterval(() => {
+          cliPrint(`64 bytes from 192.168.1.1: icmp_seq=${count} ttl=64 time=${(Math.random() * 5 + 10).toFixed(3)} ms`);
+          count++;
+          if (count >= 4) {
+            clearInterval(pInt);
+            cliPrint(`--- msl.it ping statistics ---`);
+            cliPrint(`4 packets transmitted, 4 packets received, 0.0% packet loss`);
+          }
+        }, 500);
+        return;
+      }
+      if (cmd === "matrix") {
+        cliPrint(`<span class="cli-grn">Initializing Digital Rain Protocol...</span>`);
+        showHacked = true;
+        setTimeout(() => {
+          showHacked = false;
+          cliPrint(`<span class="cli-grn">Digital Rain sequence complete. Logs sanitized.</span>`);
+        }, 8000);
+        return;
+      }
+      if (cmd === "top") {
+        cliPrint(`<span class="cli-h">// SYSTEM RESOURCES (Live)</span>`);
+        cliPrint(`Tasks: 14 total, 1 running, 13 sleeping`);
+        cliPrint(`%Cpu(s): ${(Math.random() * 10 + 2).toFixed(1)} us, ${(Math.random() * 5).toFixed(1)} sy, 0.0 ni, 85.0 id`);
+        cliPrint(`MiB Mem : 65536 total, 42100 free, 12400 used, 11036 buff/cache`);
+        cliPrint(``);
+        cliPrint(`<span class="cli-dim">PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</span>`);
+        cliPrint(`102 guest     20   0   14.2g   1.2g  84200 S   2.4   1.8   0:12.45 portfolio_engine`);
+        cliPrint(`105 guest     20   0    8.4g   0.6g  42100 R   1.2   0.9   0:02.11 cli_terminal`);
+        return;
+      }
+      if (cmd === "neofetch") {
+        const cores = navigator.hardwareConcurrency || "8";
+        cliPrint(`       <span class="cli-acc">.---.</span>       <span class="cli-acc">guest@MSL_OS</span>`);
+        cliPrint(`      <span class="cli-acc">/     \\</span>      <span class="cli-dim">------------</span>`);
+        cliPrint(`      <span class="cli-acc">\\.@ @./</span>      <span class="cli-acc">OS:</span> MSL_OS v2.0.4`);
+        cliPrint(`      <span class="cli-acc">/  _  \\</span>      <span class="cli-acc">Kernel:</span> 6.1.0-21-amd64`);
+        cliPrint(`     <span class="cli-acc">/|     |\\</span>     <span class="cli-acc">Uptime:</span> 24 days, 14 hours`);
+        cliPrint(`    <span class="cli-acc">/ \\___/ \\</span>    <span class="cli-acc">Shell:</span> portfolio-sh 5.1`);
+        cliPrint(`   <span class="cli-acc">/_________\\</span>   <span class="cli-acc">CPU:</span> ${cores} Continuous Processors`);
+        cliPrint(`   <span class="cli-acc">|         |</span>   <span class="cli-acc">GPU:</span> WebGL Accelerated`);
+        return;
+      }
+
+      if (D[mapped]) { cliPrint(D[mapped]); cliPrint(``); }
+      else {
+        const matches = CMDS.filter(c => c.startsWith(cmd));
+        if (matches.length) cliPrint(`<span class="cli-dim">Did you mean: ${matches.join(", ")}?</span>`);
+        else cliPrint(`<span class="cli-err">command not found: "${cmd}" · type 'help' or press 1-15</span>`);
+      }
+    }
+
+    const inp = document.getElementById("cli-in");
+    inp.addEventListener("keydown", e => {
+      if (e.key === "Enter") { const v = inp.value; inp.value = ""; runCLI(v); }
+      else if (e.key === "Tab") {
+        e.preventDefault();
+        const v = inp.value.trim().toLowerCase();
+        const matches = CMDS.filter(c => c.startsWith(v));
+        if (matches.length === 1) inp.value = matches[0];
+        else if (matches.length > 1) cliPrint('<span class="cli-dim">→ ' + matches.join('  ') + '</span>');
+      }
+      else if (e.key === "ArrowUp") { e.preventDefault(); if (cliHistIdx < cliHistory.length - 1) { cliHistIdx++; inp.value = cliHistory[cliHistIdx] || "" } }
+      else if (e.key === "ArrowDown") { e.preventDefault(); if (cliHistIdx > 0) { cliHistIdx--; inp.value = cliHistory[cliHistIdx] || "" } else { cliHistIdx = -1; inp.value = "" } }
+    });
+    
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        goHome();
+      }
+    });
+
+    document.getElementById("cli").addEventListener("click", () => inp.focus());
+    
+    // Boot sequence
+    bootCLI();
+  </script>
+</body>
+</html>
