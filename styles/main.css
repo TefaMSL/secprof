@@ -20,15 +20,17 @@ body.light-mode {
     --body-bg: #ffffff;
 }
 
-/* ===== GLOBAL TRANSITION FOR THEME SWITCHING ===== */
-* {
-    /* Fast but very smooth snappy curve */
-    transition: background-color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                border-color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
-                fill 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+html {
+    scroll-behavior: auto; /* Instant feel */
+}
+
+/* ===== GLOBAL TRANSITION (LIGHTNING FAST) ===== */
+body {
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.sections, .project-card, .node-card {
+    transition: background 0.3s ease;
 }
 
 /* Exemptions to prevent breaking specific animations */
@@ -85,7 +87,7 @@ body {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    transition: all 0.5s ease; /* Reference site smoothness */
+    /* Removed transition: all from here to fix heaviness */
 }
 
 /* Cleaned up light-mode overrides */
@@ -190,7 +192,7 @@ body.light-mode .project-card p {
         rgba(0, 0, 0, 0.25) 50%
     ), url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     background-size: 100% 3px, 150px 150px;
-    opacity: 0.1; /* Perfectly balanced for the whole page */
+    opacity: 0.03; /* Extremely light - safe for performance */
 }
 
 .scanlines::before {
@@ -323,11 +325,9 @@ body.light-mode .cv-download-btn {
     justify-content: flex-end;
     align-items: center;
     gap: 28px;
-    background: rgba(10, 10, 10, 0.4); /* Glass effect */
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: rgba(10, 10, 10, 0.9); /* Solid glass - much lighter */
     border-bottom: 1px solid rgba(41, 182, 212, 0.15);
-    transition: background .3s;
+    transition: all .2s;
     justify-content: space-between;
 }
 
