@@ -53,11 +53,11 @@ document.addEventListener("mousemove", (e) => {
 });
 
 function animateCursor() {
-    // Smoother following effect
+    // Faster, more responsive following (Snappier feel)
     const deltaX = mouseX - cursorX;
     const deltaY = mouseY - cursorY;
-    cursorX += deltaX * 0.2; // Adjust speed here
-    cursorY += deltaY * 0.2;
+    cursorX += deltaX * 0.45; // Increased responsiveness
+    cursorY += deltaY * 0.45;
 
     if (cursorNode) {
         cursorNode.style.left = cursorX + "px";
